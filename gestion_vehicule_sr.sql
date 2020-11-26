@@ -3,9 +3,9 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost
--- Généré le :  Mer 25 Novembre 2020 à 17:32
+-- Généré le :  Jeu 26 Novembre 2020 à 16:13
 -- Version du serveur :  5.7.11
--- Version de PHP :  5.6.18
+-- Version de PHP :  7.0.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -32,14 +32,6 @@ CREATE TABLE `destination` (
   `distance` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Contenu de la table `destination`
---
-
-INSERT INTO `destination` (`id`, `destination`, `distance`) VALUES
-(1, 'Lille', 10),
-(2, 'Roubaix', 4);
-
 -- --------------------------------------------------------
 
 --
@@ -57,7 +49,13 @@ CREATE TABLE `doctrine_migration_versions` (
 --
 
 INSERT INTO `doctrine_migration_versions` (`version`, `executed_at`, `execution_time`) VALUES
-('DoctrineMigrations\\Version20201125122530', '2020-11-25 12:25:33', 357);
+('DoctrineMigrations\\Version20201124135649', '2020-11-26 15:09:19', 44),
+('DoctrineMigrations\\Version20201124140256', '2020-11-26 15:09:19', 125),
+('DoctrineMigrations\\Version20201124140421', '2020-11-26 15:09:19', 52),
+('DoctrineMigrations\\Version20201124141748', '2020-11-26 15:09:19', 443),
+('DoctrineMigrations\\Version20201125122530', '2020-11-25 12:25:33', 357),
+('DoctrineMigrations\\Version20201126144738', '2020-11-26 14:47:45', 544),
+('DoctrineMigrations\\Version20201126151000', '2020-11-26 15:10:06', 559);
 
 -- --------------------------------------------------------
 
@@ -73,17 +71,9 @@ CREATE TABLE `historique` (
   `etat` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `commentaire` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `vehicule_id` int(11) NOT NULL,
-  `destination_id` int(11) DEFAULT NULL,
-  `personne_id` int(11) DEFAULT NULL
+  `destination_id` int(11) NOT NULL,
+  `personne_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Contenu de la table `historique`
---
-
-INSERT INTO `historique` (`id`, `datedemande`, `datedebut`, `datefin`, `etat`, `commentaire`, `vehicule_id`, `destination_id`, `personne_id`) VALUES
-(2, '2020-11-25', '2021-01-01', '2022-01-01', 'En cours', NULL, 2, NULL, NULL),
-(3, '2020-11-25', '2021-01-01', '2022-01-01', 'En cours', NULL, 1, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -124,6 +114,27 @@ CREATE TABLE `service` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `user`
+--
+
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL,
+  `email` varchar(180) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `roles` json NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Contenu de la table `user`
+--
+
+INSERT INTO `user` (`id`, `email`, `roles`, `password`) VALUES
+(1, 'employe@gmail.com', '["ROLE_EMPLOYE"]', '$argon2id$v=19$m=65536,t=4,p=1$Sm00MTRLLjdtaFdMNUNWTg$oSqnFoqbCIH4z/vqZDwUal62k4QD7IDUPXI/8dDh7Zs'),
+(2, 'gestionnaire@gmail.com', '["ROLE_GESTIONNAIRE"]', '$argon2id$v=19$m=65536,t=4,p=1$bDlWQi5NNjA4akI3YzdMNg$pUndPNSE/ZhymI2xml65MTyC3Wbqv/H479c46SWVUcE');
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `utilisation`
 --
 
@@ -145,9 +156,7 @@ CREATE TABLE `utilisation` (
 --
 
 INSERT INTO `utilisation` (`id`, `vehicule_id`, `destination_id`, `motifrefus_id`, `personne_id`, `datedemande`, `datedebut`, `datefin`, `etat`, `commentaire`) VALUES
-(1, 1, NULL, NULL, NULL, '2020-11-25', '2021-01-01 00:00:00', '2022-01-01 00:00:00', 'En cours', NULL),
-(2, 2, NULL, NULL, NULL, '2020-11-25', '2024-01-01 00:00:00', '2025-01-01 00:00:00', 'En cours', NULL),
-(3, NULL, NULL, NULL, NULL, '2020-11-25', '2023-01-01 00:00:00', '2024-01-01 00:00:00', 'En attente', NULL);
+(1, NULL, NULL, NULL, NULL, '2020-11-26', '2023-01-01 00:00:00', '2025-01-01 00:00:00', 'En attente', NULL);
 
 -- --------------------------------------------------------
 
@@ -159,14 +168,6 @@ CREATE TABLE `vehicule` (
   `id` int(11) NOT NULL,
   `immatriculation` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Contenu de la table `vehicule`
---
-
-INSERT INTO `vehicule` (`id`, `immatriculation`) VALUES
-(1, 'AB-234-CD'),
-(2, 'CD-245-WQ');
 
 -- --------------------------------------------------------
 
@@ -185,7 +186,7 @@ CREATE TABLE `vehiculedisponible` (
 --
 DROP TABLE IF EXISTS `vehiculedisponible`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vehiculedisponible`  AS  select `v`.`id` AS `id`,`v`.`immatriculation` AS `immatriculation` from (`vehicule` `v` join `utilisation` `u` on((`u`.`vehicule_id` = `v`.`id`))) where (not(`u`.`vehicule_id` in (select `vehicule`.`id`,`vehicule`.`immatriculation` from `vehicule`))) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vehiculedisponible`  AS  select `vehicule`.`id` AS `id`,`vehicule`.`immatriculation` AS `immatriculation` from `vehicule` where (not(`vehicule`.`id` in (select `utilisation`.`vehicule_id` from `utilisation`))) ;
 
 --
 -- Index pour les tables exportées
@@ -229,6 +230,13 @@ ALTER TABLE `service`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Index pour la table `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `UNIQ_8D93D649E7927C74` (`email`);
+
+--
 -- Index pour la table `utilisation`
 --
 ALTER TABLE `utilisation`
@@ -252,12 +260,12 @@ ALTER TABLE `vehicule`
 -- AUTO_INCREMENT pour la table `destination`
 --
 ALTER TABLE `destination`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT pour la table `historique`
 --
 ALTER TABLE `historique`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT pour la table `motifrefus`
 --
@@ -274,15 +282,20 @@ ALTER TABLE `personne`
 ALTER TABLE `service`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT pour la table `user`
+--
+ALTER TABLE `user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+--
 -- AUTO_INCREMENT pour la table `utilisation`
 --
 ALTER TABLE `utilisation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT pour la table `vehicule`
 --
 ALTER TABLE `vehicule`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- Contraintes pour les tables exportées
 --
