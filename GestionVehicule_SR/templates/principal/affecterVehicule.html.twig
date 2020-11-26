@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Affectation{% endblock %}
+
+{% block body %}
+<div class="container">
+Id de la demande {{utilisation.id}}</br>
+Date de la demande {{utilisation.datedemande|date('Y-m-d')}}</br>
+Date de début {{utilisation.datedebut|date('Y-m-d')}}</br>
+Date de fin {{utilisation.datefin|date('Y-m-d')}}</br>
+Immatriculation du véhicule affecté à la demande "{{utilisation.getVehicule()}}"
+<p>
+	<a class="btn btn-outline-primary" href="javascript:history.go(-1)" title="Return to the previous page">&laquo; Retour en arrière</a>
+</p>
+</div>
+{% endblock %}

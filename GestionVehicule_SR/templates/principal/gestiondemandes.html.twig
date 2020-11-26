@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello PrincipalController!{% endblock %}
+
+{% block body %}
+
+<center><h1><u>Gestion des demandes</u></hi></center>
+
+   
+
+
+<h2>Voici la liste des demandes en attente :</h2>
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Numéro de demande</th>
+                <th>Date de demande</th>
+                <th>Date de début</th>
+                <th>Date de fin</th>
+                <th>Etat</th>
+                <th>commentaire</th>
+                <th>Destination</th>
+                <th>Affecter sa demande à un véhicule (Accepter)</th>
+                <th>Refuser la demande</th>
+            </tr>
+        </thead>
+        {% for utilisation in utilisations %}
+        <thead class="thead-light">
+            {% if utilisation.etat == 'En attente'%}
+            <tr>
+                <th>{{utilisation.id}}</th><th>{{utilisation.datedemande|date('Y-m-d')}}</th><th>{{utilisation.datedebut|date('Y-m-d')}}</th><th>{{utilisation.datefin|date('Y-m-d')}}</th>
+                <th>{{utilisation.etat}}</th>
+
+                {% if utilisation.commentaire == null %}
+                    <th>Pas de commentaire</th>
+                {% else %}
+                    <th>{{utilisation.commentaire}}</th>
+                {% endif %}
+                
+
+                {% if utilisation.getDestination() != null %}
+                    <th>{{utilisation.getDestination().getDestination()}}</th>                   
+                {% elseif utilisation.getDestination() == null %}
+                    <th>Pas de destination</th>
+                {% endif %}
+
+                <th>
+                    
+                    {% for vehicule in vehicules %}
+                        {% if utilisation.getVehicule() != vehicule.id %}
+                        <a href="\affecterVehicule/{{utilisation.id}}/{{vehicule.id}}" type="button" value="{{utilisation.id}}" class="btn btn-outline-success">{{vehicule.immatriculation}}</a>
+                        {% endif %}
+                        {% else %}
+                        Pas de véhicule disponible
+                    {% endfor %}
+                    
+                    
+                </th>
+
+                <th>
+                    <a type="button"  class="btn btn btn-outline-danger">Refuser </a>
+                </th>
+                
+            </tr>
+            {% endif %}
+        </thead>
+        {% else %}
+            Pas de demande trouvé.
+        {% endfor %}
+    
+    </table>
+
+
+{% endblock %}
